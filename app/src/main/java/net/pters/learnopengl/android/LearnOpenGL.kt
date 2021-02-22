@@ -4,6 +4,7 @@ import android.content.Context
 import net.pters.learnopengl.android.scenes.advancedopengl.Scene1DepthTesting
 import net.pters.learnopengl.android.scenes.advancedopengl.Scene2DepthBufferVisualized
 import net.pters.learnopengl.android.scenes.advancedopengl.Scene3StencilTesting
+import net.pters.learnopengl.android.scenes.advancedopengl.Scene4Blending
 import net.pters.learnopengl.android.scenes.gettingstarted.*
 import net.pters.learnopengl.android.scenes.lighting.*
 import net.pters.learnopengl.android.scenes.modelloading.SceneBackpack
@@ -75,7 +76,8 @@ object LearnOpenGL {
                             context
                         )
                     },
-                    Chapter("Stencil testing") { context -> Scene3StencilTesting.create(context) }
+                    Chapter("Stencil testing") { context -> Scene3StencilTesting.create(context) },
+                    Chapter("Blending") { context -> Scene4Blending.create(context) }
                 )
             )
         )
