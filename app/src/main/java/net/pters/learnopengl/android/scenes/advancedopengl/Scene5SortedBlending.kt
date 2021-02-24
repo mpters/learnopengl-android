@@ -2,19 +2,17 @@ package net.pters.learnopengl.android.scenes.advancedopengl
 
 import android.content.Context
 import android.opengl.GLES30.*
-import com.curiouscreature.kotlin.math.Float3
-import com.curiouscreature.kotlin.math.Mat4
-import com.curiouscreature.kotlin.math.perspective
-import com.curiouscreature.kotlin.math.translation
+import com.curiouscreature.kotlin.math.*
 import net.pters.learnopengl.android.R
 import net.pters.learnopengl.android.scenes.Vertices.cubeWithTexture
 import net.pters.learnopengl.android.tools.*
 
-class Scene1DepthTesting private constructor(
+class Scene5SortedBlending private constructor(
     private val vertexShaderCode: String,
     private val fragmentShaderCode: String,
     private val marbleTexture: Texture,
-    private val metalTexture: Texture
+    private val metalTexture: Texture,
+    private val windowTexture: Texture
 ) : Scene() {
 
     private val planeVertices = floatArrayOf(
@@ -27,6 +25,24 @@ class Scene1DepthTesting private constructor(
         5.0f, -0.5f, -5.0f, 2.0f, 2.0f
     )
 
+    private val windowVertices = floatArrayOf(
+        0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
+        0.0f, -0.5f, 0.0f, 0.0f, 1.0f,
+        1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
+
+        0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
+        1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
+        1.0f, 0.5f, 0.0f, 1.0f, 0.0f
+    )
+
+    private val windowPositions = listOf(
+        Float3(-1.5f, 0.0f, -0.48f),
+        Float3(1.5f, 0.0f, 0.51f),
+        Float3(0.0f, 0.0f, 0.7f),
+        Float3(-0.3f, 0.0f, -2.3f),
+        Float3(0.5f, 0.0f, -0.6f)
+    )
+
     private val camera = Camera()
 
     private lateinit var program: Program
@@ -34,6 +50,8 @@ class Scene1DepthTesting private constructor(
     private lateinit var cubeVertexData: VertexData
 
     private lateinit var planeVertexData: VertexData
+
+    private lateinit var windowVertexData: VertexData
 
     override fun draw() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f)
@@ -59,15 +77,28 @@ class Scene1DepthTesting private constructor(
         glBindVertexArray(planeVertexData.getVaoId())
         program.setMat4("model", Mat4())
         glDrawArrays(GL_TRIANGLES, 0, 6)
+
+        // Windows
+        glBindTexture(GL_TEXTURE_2D, windowTexture.getId())
+        glBindVertexArray(windowVertexData.getVaoId())
+        windowPositions.sortedByDescending {
+            length(camera.getEye() - it)
+        }.forEach {
+            model = translation(it)
+            program.setMat4("model", model)
+            glDrawArrays(GL_TRIANGLES, 0, 6)
+        }
     }
 
     override fun getCamera() = camera
 
     override fun init(width: Int, height: Int) {
         glEnable(GL_DEPTH_TEST)
-        glDepthFunc(GL_ALWAYS)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         glViewport(0, 0, width, height)
 
+        windowTexture.load()
         marbleTexture.load()
         metalTexture.load()
 
@@ -86,17 +117,28 @@ class Scene1DepthTesting private constructor(
         planeVertexData.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
         planeVertexData.addAttribute(program.getAttributeLocation("aTexCoords"), 2, 3)
         planeVertexData.bind()
+
+        windowVertexData = VertexData(windowVertices, null, 5)
+        windowVertexData.addAttribute(program.getAttributeLocation("aPos"), 3, 0)
+        windowVertexData.addAttribute(program.getAttributeLocation("aTexCoords"), 2, 3)
+        windowVertexData.bind()
     }
 
     companion object {
 
         fun create(context: Context): Scene {
             val resources = context.resources
-            return Scene1DepthTesting(
+            return Scene5SortedBlending(
                 vertexShaderCode = resources.readRawTextFile(R.raw.simple_texture_vert),
                 fragmentShaderCode = resources.readRawTextFile(R.raw.simple_texture_frag),
                 marbleTexture = Texture(loadBitmap(context, R.raw.texture_marble)),
-                metalTexture = Texture(loadBitmap(context, R.raw.texture_metal))
+                metalTexture = Texture(loadBitmap(context, R.raw.texture_metal)),
+                windowTexture = Texture(
+                    loadBitmap(
+                        context,
+                        R.raw.texture_blending_transparent_window
+                    )
+                )
             )
         }
     }

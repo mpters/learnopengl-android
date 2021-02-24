@@ -130,8 +130,8 @@ class Scene4Blending private constructor(
         fun create(context: Context): Scene {
             val resources = context.resources
             return Scene4Blending(
-                vertexShaderCode = resources.readRawTextFile(R.raw.advancedopengl_scene1_depth_testing_vert),
-                fragmentShaderCode = resources.readRawTextFile(R.raw.advancedopengl_scene1_depth_testing_frag),
+                vertexShaderCode = resources.readRawTextFile(R.raw.simple_texture_vert),
+                fragmentShaderCode = resources.readRawTextFile(R.raw.simple_texture_frag),
                 grassTexture = Texture(loadBitmap(context, R.raw.texture_grass)),
                 marbleTexture = Texture(loadBitmap(context, R.raw.texture_marble)),
                 metalTexture = Texture(loadBitmap(context, R.raw.texture_metal))
