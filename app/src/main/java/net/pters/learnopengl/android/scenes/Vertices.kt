@@ -149,4 +149,27 @@ object Vertices {
         Float3(1.5f, 0.2f, -1.5f),
         Float3(-1.3f, 1.0f, -1.5f)
     )
+
+    /**
+     * A quad that spans the whole normalized device coordinates space.
+     */
+    val ndcQuadWithTexture = floatArrayOf(
+        -1.0f, 1.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, 1.0f, 0.0f,
+
+        -1.0f, 1.0f, 0.0f, 1.0f,
+        1.0f, -1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f, 1.0f
+    )
+
+    val planeWithTexture = floatArrayOf(
+        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+        -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+
+        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+        5.0f, -0.5f, -5.0f, 2.0f, 2.0f
+    )
 }

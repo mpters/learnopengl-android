@@ -93,7 +93,7 @@ class Scene1DepthTesting private constructor(
         fun create(context: Context): Scene {
             val resources = context.resources
             return Scene1DepthTesting(
-                vertexShaderCode = resources.readRawTextFile(R.raw.simple_texture_vert),
+                vertexShaderCode = resources.readRawTextFile(R.raw.simple_texture_mvp_vert),
                 fragmentShaderCode = resources.readRawTextFile(R.raw.simple_texture_frag),
                 marbleTexture = Texture(loadBitmap(context, R.raw.texture_marble)),
                 metalTexture = Texture(loadBitmap(context, R.raw.texture_metal))
