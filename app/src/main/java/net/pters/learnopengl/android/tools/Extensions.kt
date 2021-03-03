@@ -4,6 +4,8 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import androidx.annotation.RawRes
+import com.curiouscreature.kotlin.math.Float4
+import com.curiouscreature.kotlin.math.Mat4
 import java.nio.*
 
 fun Bitmap.flipVertically(): Bitmap {
@@ -24,6 +26,10 @@ fun IntArray.toIntBuffer(): IntBuffer = ByteBuffer
     .asIntBuffer().also {
         it.put(this).position(0)
     }
+
+fun Mat4.withoutTranslation() = upperLeft.let { ul ->
+    Mat4(x = Float4(ul.x), y = Float4(ul.y), z = Float4(ul.z))
+}
 
 fun Resources.readRawTextFile(@RawRes id: Int) =
     openRawResource(id).bufferedReader().use { it.readText() }

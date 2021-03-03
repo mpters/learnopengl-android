@@ -77,7 +77,8 @@ object LearnOpenGL {
                     Chapter("Blending") { context -> Scene4Blending.create(context) },
                     Chapter("Sorted blending") { context -> Scene5SortedBlending.create(context) },
                     Chapter("Face culling") { context -> Scene6FaceCulling.create(context) },
-                    Chapter("Framebuffers") { context -> Scene7Framebuffers.create(context) }
+                    Chapter("Framebuffers") { context -> Scene7Framebuffers.create(context) },
+                    Chapter("Cubemaps") { context -> Scene8Cubemaps.create(context) }
                 )
             )
         )
