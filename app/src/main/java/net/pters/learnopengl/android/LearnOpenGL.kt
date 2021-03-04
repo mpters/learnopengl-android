@@ -78,7 +78,12 @@ object LearnOpenGL {
                     Chapter("Sorted blending") { context -> Scene5SortedBlending.create(context) },
                     Chapter("Face culling") { context -> Scene6FaceCulling.create(context) },
                     Chapter("Framebuffers") { context -> Scene7Framebuffers.create(context) },
-                    Chapter("Cubemaps") { context -> Scene8Cubemaps.create(context) }
+                    Chapter("Cubemaps: Skybox") { context -> Scene8CubemapsSkybox.create(context) },
+                    Chapter("Cubemaps: Environment mapping") { context ->
+                        Scene9CubemapsEnvironmentMapping.create(
+                            context
+                        )
+                    }
                 )
             )
         )

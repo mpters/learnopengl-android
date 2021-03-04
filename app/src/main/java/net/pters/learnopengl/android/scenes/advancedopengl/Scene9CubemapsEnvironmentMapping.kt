@@ -5,16 +5,15 @@ import android.opengl.GLES30.*
 import com.curiouscreature.kotlin.math.Mat4
 import com.curiouscreature.kotlin.math.perspective
 import net.pters.learnopengl.android.R
-import net.pters.learnopengl.android.scenes.Vertices.cubeWithTexture
-import net.pters.learnopengl.android.scenes.Vertices.skyboxVertices
+import net.pters.learnopengl.android.scenes.Vertices
+import net.pters.learnopengl.android.scenes.Vertices.cubeWithNormals
 import net.pters.learnopengl.android.tools.*
 
-class Scene8Cubemaps private constructor(
+class Scene9CubemapsEnvironmentMapping private constructor(
     private val cubeVertexShaderCode: String,
     private val cubeFragmentShaderCode: String,
     private val skyboxVertexShaderCode: String,
     private val skyboxFragmentShaderCode: String,
-    private val containerTexture: Texture,
     private val skybox: Cubemap
 ) : Scene() {
 
@@ -34,19 +33,18 @@ class Scene8Cubemaps private constructor(
 
         val view = camera.getViewMatrix()
 
+        cubeProgram.use()
+        cubeProgram.setMat4("view", view)
+        cubeProgram.setFloat3("cameraPos", camera.getEye())
+        glBindVertexArray(cubeVertexData.getVaoId())
+        glDrawArrays(GL_TRIANGLES, 0, 36)
+
         skyboxProgram.use()
         skyboxProgram.setMat4("view", view.withoutTranslation())
-        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.getId())
         glBindVertexArray(skyboxVertexData.getVaoId())
         glDepthFunc(GL_LEQUAL)
         glDrawArrays(GL_TRIANGLES, 0, 36)
         glDepthFunc(GL_LESS)
-
-        cubeProgram.use()
-        cubeProgram.setMat4("view", view)
-        glBindTexture(GL_TEXTURE_2D, containerTexture.getId())
-        glBindVertexArray(cubeVertexData.getVaoId())
-        glDrawArrays(GL_TRIANGLES, 0, 36)
     }
 
     override fun getCamera() = camera
@@ -55,7 +53,6 @@ class Scene8Cubemaps private constructor(
         glEnable(GL_DEPTH_TEST)
         glViewport(0, 0, width, height)
 
-        containerTexture.load()
         skybox.load()
 
         cubeProgram = Program.create(cubeVertexShaderCode, cubeFragmentShaderCode)
@@ -64,16 +61,16 @@ class Scene8Cubemaps private constructor(
         cubeProgram.setMat4("model", Mat4())
         cubeProgram.setMat4("projection", projection)
 
-        cubeVertexData = VertexData(cubeWithTexture, null, 5)
+        cubeVertexData = VertexData(cubeWithNormals, null, 6)
         cubeVertexData.addAttribute(cubeProgram.getAttributeLocation("aPos"), 3, 0)
-        cubeVertexData.addAttribute(cubeProgram.getAttributeLocation("aTexCoord"), 2, 3)
+        cubeVertexData.addAttribute(cubeProgram.getAttributeLocation("aNormal"), 3, 3)
         cubeVertexData.bind()
 
         skyboxProgram = Program.create(skyboxVertexShaderCode, skyboxFragmentShaderCode)
         skyboxProgram.use()
         skyboxProgram.setMat4("projection", projection)
 
-        skyboxVertexData = VertexData(skyboxVertices, null, 3)
+        skyboxVertexData = VertexData(Vertices.skybox, null, 3)
         skyboxVertexData.addAttribute(cubeProgram.getAttributeLocation("aPos"), 3, 0)
         skyboxVertexData.bind()
     }
@@ -82,12 +79,11 @@ class Scene8Cubemaps private constructor(
 
         fun create(context: Context): Scene {
             val resources = context.resources
-            return Scene8Cubemaps(
-                cubeVertexShaderCode = resources.readRawTextFile(R.raw.gettingstarted_scene8_coordinate_systems_vert),
-                cubeFragmentShaderCode = resources.readRawTextFile(R.raw.gettingstarted_scene8_coordinate_systems_frag),
+            return Scene9CubemapsEnvironmentMapping(
+                cubeVertexShaderCode = resources.readRawTextFile(R.raw.advancedopengl_scene9_environment_mapping_cube_vert),
+                cubeFragmentShaderCode = resources.readRawTextFile(R.raw.advancedopengl_scene9_environment_mapping_cube_frag),
                 skyboxVertexShaderCode = resources.readRawTextFile(R.raw.advancedopengl_scene8_cubemaps_skybox_vert),
                 skyboxFragmentShaderCode = resources.readRawTextFile(R.raw.advancedopengl_scene8_cubemaps_skybox_frag),
-                Texture(loadBitmap(context, R.raw.texture_container).flipVertically()),
                 Cubemap(
                     right = loadBitmap(context, R.raw.texture_skybox_right),
                     left = loadBitmap(context, R.raw.texture_skybox_left),
