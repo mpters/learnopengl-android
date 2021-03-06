@@ -1,13 +1,15 @@
 package net.pters.learnopengl.android.tools
 
 import android.opengl.GLES30.*
+import android.opengl.GLES32
 import com.curiouscreature.kotlin.math.Float3
 import com.curiouscreature.kotlin.math.Mat4
 import java.nio.IntBuffer
 
 class Program private constructor(
     private val vertexShaderId: Int,
-    private val fragmentShaderId: Int
+    private val fragmentShaderId: Int,
+    private val geometryShaderId: Int?
 ) {
 
     private var id: Int = -1
@@ -65,6 +67,7 @@ class Program private constructor(
         id = glCreateProgram()
         glAttachShader(id, vertexShaderId)
         glAttachShader(id, fragmentShaderId)
+        geometryShaderId?.also { glAttachShader(id, it) }
         glLinkProgram(id)
 
         val linkStatus = IntBuffer.allocate(1)
@@ -76,15 +79,25 @@ class Program private constructor(
 
     companion object {
 
-        fun create(vertexShaderCode: String, fragmentShaderCode: String): Program {
+        fun create(vertexShaderCode: String, fragmentShaderCode: String) =
+            create(vertexShaderCode, fragmentShaderCode, null)
+
+        fun create(
+            vertexShaderCode: String,
+            fragmentShaderCode: String,
+            geometryShaderCode: String? = null
+        ): Program {
             val vertexShaderId = compileShader(GL_VERTEX_SHADER, vertexShaderCode)
             val fragmentShaderId = compileShader(GL_FRAGMENT_SHADER, fragmentShaderCode)
-            return Program(vertexShaderId, fragmentShaderId).apply {
+            val geometryShaderId =
+                geometryShaderCode?.let { compileShader(GLES32.GL_GEOMETRY_SHADER, it) }
+            return Program(vertexShaderId, fragmentShaderId, geometryShaderId).apply {
                 link()
                 fetchAttributes()
                 fetchUniforms()
                 glDeleteShader(vertexShaderId)
                 glDeleteShader(fragmentShaderId)
+                geometryShaderId?.also { glDeleteShader(it) }
             }
         }
     }

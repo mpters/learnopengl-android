@@ -88,7 +88,12 @@ object LearnOpenGL {
                         Scene10UniformBufferObjects.create(
                             context
                         )
-                    }
+                    },
+                    Chapter("Geometry shaders: Houses (ES 3.2 only)") { context ->
+                        Scene11GeometryShadersHouses.create(
+                            context
+                        )
+                    },
                 )
             )
         )
