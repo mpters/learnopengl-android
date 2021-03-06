@@ -16,9 +16,11 @@ class Program private constructor(
 
     private var uniforms = mutableMapOf<String, Int>()
 
-    fun getUniformLocation(name: String) = uniforms.getValue(name)
-
     fun getAttributeLocation(name: String) = attributes.getValue(name)
+
+    fun getId() = id
+
+    fun getUniformLocation(name: String) = uniforms.getValue(name)
 
     fun set3f(uniformName: String, f1: Float, f2: Float, f3: Float) =
         glUniform3f(getUniformLocation(uniformName), f1, f2, f3)

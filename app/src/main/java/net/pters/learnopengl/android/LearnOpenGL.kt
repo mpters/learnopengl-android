@@ -83,6 +83,11 @@ object LearnOpenGL {
                         Scene9CubemapsEnvironmentMapping.create(
                             context
                         )
+                    },
+                    Chapter("Uniform buffer objects") { context ->
+                        Scene10UniformBufferObjects.create(
+                            context
+                        )
                     }
                 )
             )

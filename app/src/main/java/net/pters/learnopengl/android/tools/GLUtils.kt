@@ -17,6 +17,11 @@ internal fun compileShader(type: Int, code: String) = glCreateShader(type).also 
     }
 }
 
+internal fun genId(glGenCall: (IntBuffer) -> Unit) = IntBuffer.allocate(1).let {
+    glGenCall(it)
+    it[0]
+}
+
 internal fun loadBitmap(context: Context, @RawRes textureId: Int) = BitmapFactory.decodeResource(
     context.resources,
     textureId,
