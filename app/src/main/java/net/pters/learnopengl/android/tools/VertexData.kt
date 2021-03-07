@@ -22,8 +22,16 @@ class VertexData(
 
     private var vaoId: Int? = null
 
+    fun addAttribute(attribute: Attribute) = attributes.add(attribute)
+
     fun addAttribute(location: Int, size: Int, offset: Int) {
-        attributes.add(Attribute(location = location, size = size, offset = offset))
+        attributes.add(
+            Attribute(
+                location = location,
+                size = size,
+                offset = offset
+            )
+        )
     }
 
     fun bind() {
@@ -62,9 +70,10 @@ class VertexData(
             attribute.size,
             GL_FLOAT,
             false,
-            stride * Float.SIZE_BYTES,
+            (attribute.stride ?: stride) * Float.SIZE_BYTES,
             attribute.offset * Float.SIZE_BYTES
         )
+        attribute.divisor?.also { glVertexAttribDivisor(attribute.location, it) }
     }
 
     private fun bindIndices() = indices?.takeIf { it.capacity() > 0 }?.also {
@@ -79,5 +88,13 @@ class VertexData(
         )
     }
 
-    private data class Attribute(val location: Int, val size: Int, val offset: Int)
+    data class Attribute(
+        val location: Int,
+        val size: Int,
+        val offset: Int,
+        /** Custom stride when attribute is not in order with [VertexData.stride] */
+        val stride: Int? = null,
+        /** When using instancing it might be necessary to use a divisor other than default */
+        val divisor: Int? = null
+    )
 }

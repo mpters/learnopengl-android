@@ -93,7 +93,8 @@ object LearnOpenGL {
                     },
                     Chapter("Geometry shaders (ES 3.2 only): Visualizing normals") { context ->
                         Scene13GeometryShadersVisualizingNormals.create(context)
-                    }
+                    },
+                    Chapter("Instancing: Quads") { context -> Scene141InstancingQuads.create(context) },
                 )
             )
         )
