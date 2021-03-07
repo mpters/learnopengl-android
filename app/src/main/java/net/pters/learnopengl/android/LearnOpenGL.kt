@@ -85,11 +85,14 @@ object LearnOpenGL {
                     Chapter("Uniform buffer objects") { context ->
                         Scene10UniformBufferObjects.create(context)
                     },
-                    Chapter("Geometry shaders: Houses (ES 3.2 only)") { context ->
+                    Chapter("Geometry shaders (ES 3.2 only): Houses") { context ->
                         Scene11GeometryShadersHouses.create(context)
                     },
-                    Chapter("Geometry shaders: Exploding objects (ES 3.2 only)") { context ->
+                    Chapter("Geometry shaders (ES 3.2 only): Exploding objects") { context ->
                         Scene12GeometryShadersExplodingObjects.create(context)
+                    },
+                    Chapter("Geometry shaders (ES 3.2 only): Visualizing normals") { context ->
+                        Scene13GeometryShadersVisualizingNormals.create(context)
                     }
                 )
             )

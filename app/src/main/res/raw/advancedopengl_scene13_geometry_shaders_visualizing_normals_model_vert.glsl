@@ -4,9 +4,7 @@ layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
 
 out vec3 Normal;
-out VS_OUT {
-    vec2 texCoords;
-} vs_out;
+out vec2 TexCoords;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -14,6 +12,6 @@ uniform mat4 model;
 
 void main() {
     Normal = mat3(transpose(inverse(model))) * aNormal;
-    vs_out.texCoords = aTexCoords;
+    TexCoords = aTexCoords;
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
