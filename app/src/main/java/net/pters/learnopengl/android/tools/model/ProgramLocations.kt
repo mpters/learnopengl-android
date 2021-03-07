@@ -7,8 +7,8 @@ data class ProgramLocations(
     val attribNormal: Int,
     val attribTexCoords: Int,
     val uniformDiffuseTexture: Int,
-    val uniformSpecularTexture: Int,
-    val uniformShininess: Int
+    val uniformSpecularTexture: Int? = null,
+    val uniformShininess: Int? = null
 )
 
 internal object DefaultProgramLocations {

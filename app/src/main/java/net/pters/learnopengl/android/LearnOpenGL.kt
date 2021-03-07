@@ -80,20 +80,17 @@ object LearnOpenGL {
                     Chapter("Framebuffers") { context -> Scene7Framebuffers.create(context) },
                     Chapter("Cubemaps: Skybox") { context -> Scene8CubemapsSkybox.create(context) },
                     Chapter("Cubemaps: Environment mapping") { context ->
-                        Scene9CubemapsEnvironmentMapping.create(
-                            context
-                        )
+                        Scene9CubemapsEnvironmentMapping.create(context)
                     },
                     Chapter("Uniform buffer objects") { context ->
-                        Scene10UniformBufferObjects.create(
-                            context
-                        )
+                        Scene10UniformBufferObjects.create(context)
                     },
                     Chapter("Geometry shaders: Houses (ES 3.2 only)") { context ->
-                        Scene11GeometryShadersHouses.create(
-                            context
-                        )
+                        Scene11GeometryShadersHouses.create(context)
                     },
+                    Chapter("Geometry shaders: Exploding objects (ES 3.2 only)") { context ->
+                        Scene12GeometryShadersExplodingObjects.create(context)
+                    }
                 )
             )
         )

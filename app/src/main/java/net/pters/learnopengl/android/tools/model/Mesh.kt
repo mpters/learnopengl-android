@@ -54,14 +54,13 @@ class Mesh(
             glBindTexture(GL_TEXTURE_2D, it.getId())
             program.setInt(locations.uniformDiffuseTexture, 0)
         }
-        material.specularTexture?.also {
+        material.specularTexture?.also { texture ->
             glActiveTexture(GL_TEXTURE1)
-            glBindTexture(GL_TEXTURE_2D, it.getId())
-            program.setInt(locations.uniformSpecularTexture, 1)
-
+            glBindTexture(GL_TEXTURE_2D, texture.getId())
+            locations.uniformSpecularTexture?.also { program.setInt(it, 1) }
         }
 
-        program.setFloat(locations.uniformShininess, 32.0f)
+        locations.uniformShininess?.also { program.setFloat(it, 32.0f) }
     }
 
     fun draw() {
