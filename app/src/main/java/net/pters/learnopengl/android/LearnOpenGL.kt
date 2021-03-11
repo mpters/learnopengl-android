@@ -95,6 +95,11 @@ object LearnOpenGL {
                         Scene13GeometryShadersVisualizingNormals.create(context)
                     },
                     Chapter("Instancing: Quads") { context -> Scene141InstancingQuads.create(context) },
+                    Chapter("Instancing: Asteroid field") { context ->
+                        Scene142InstancingAsteroidField.create(
+                            context
+                        )
+                    }
                 )
             )
         )

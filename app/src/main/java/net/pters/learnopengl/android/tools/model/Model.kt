@@ -9,7 +9,10 @@ class Model(private val meshes: List<Mesh>) {
     }
 
     fun draw() {
-        meshes.forEach { it.draw() }
+        meshes.forEach {
+            it.setTexturesAndUniforms()
+            it.draw()
+        }
     }
 
     fun getPrimaryMaterial() = meshes.first().material

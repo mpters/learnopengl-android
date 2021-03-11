@@ -18,6 +18,10 @@ class Mesh(
 
     private val data: VertexData
 
+    private var program: Program? = null
+
+    private var locations: ProgramLocations? = null
+
     init {
         val capacity = vertices.capacity() + normals.capacity() + texCoords.capacity()
         val buffer = ByteBuffer.allocateDirect(capacity * Float.SIZE_BYTES)
@@ -39,15 +43,31 @@ class Mesh(
     }
 
     fun bind(program: Program, locations: ProgramLocations) {
+        this.program = program
+        this.locations = locations
+
         data.addAttribute(locations.attribPosition, 3, 0)
         data.addAttribute(locations.attribNormal, 3, 3)
         data.addAttribute(locations.attribTexCoords, 2, 6)
         data.bind()
 
-        program.use()
-
         material.diffuseTexture?.load()
         material.specularTexture?.load()
+    }
+
+    fun draw() {
+        glBindVertexArray(data.getVaoId())
+        glDrawElements(GL_TRIANGLES, indices.capacity(), GL_UNSIGNED_INT, 0)
+    }
+
+    fun setTexturesAndUniforms() {
+        val program = this.program
+        val locations = this.locations
+        if (program == null || locations == null) {
+            throw IllegalStateException("Make sure you called bind(Program, ProgramLocations)")
+        }
+
+        program.use()
 
         material.diffuseTexture?.also {
             glActiveTexture(GL_TEXTURE0)
@@ -61,10 +81,5 @@ class Mesh(
         }
 
         locations.uniformShininess?.also { program.setFloat(it, 32.0f) }
-    }
-
-    fun draw() {
-        glBindVertexArray(data.getVaoId())
-        glDrawElements(GL_TRIANGLES, indices.capacity(), GL_UNSIGNED_INT, 0)
     }
 }
