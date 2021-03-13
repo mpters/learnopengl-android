@@ -47,7 +47,9 @@ class Mesh(
         this.locations = locations
 
         data.addAttribute(locations.attribPosition, 3, 0)
-        data.addAttribute(locations.attribNormal, 3, 3)
+        locations.attribNormal?.also {
+            data.addAttribute(it, 3, 3)
+        }
         data.addAttribute(locations.attribTexCoords, 2, 6)
         data.bind()
 

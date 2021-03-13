@@ -61,7 +61,6 @@ class Scene142InstancingAsteroidField private constructor(
         asteroidModel.bind(
             asteroidProgram, ProgramLocations(
                 attribPosition = asteroidProgram.getAttributeLocation("aPos"),
-                attribNormal = asteroidProgram.getAttributeLocation("aNormal"),
                 attribTexCoords = asteroidProgram.getAttributeLocation("aTexCoords"),
                 uniformDiffuseTexture = asteroidProgram.getUniformLocation("texture1")
             )
@@ -88,8 +87,17 @@ class Scene142InstancingAsteroidField private constructor(
         asteroidModel.getMeshes().forEach { mesh ->
             glBindVertexArray(mesh.getVaoId())
 
+            glEnableVertexAttribArray(2)
+            glVertexAttribPointer(2, 4, GL_FLOAT, false, Mat4.numFloats() * Float.SIZE_BYTES, 0)
             glEnableVertexAttribArray(3)
-            glVertexAttribPointer(3, 4, GL_FLOAT, false, Mat4.numFloats() * Float.SIZE_BYTES, 0)
+            glVertexAttribPointer(
+                3,
+                4,
+                GL_FLOAT,
+                false,
+                Mat4.numFloats() * Float.SIZE_BYTES,
+                4 * Float.SIZE_BYTES
+            )
             glEnableVertexAttribArray(4)
             glVertexAttribPointer(
                 4,
@@ -97,7 +105,7 @@ class Scene142InstancingAsteroidField private constructor(
                 GL_FLOAT,
                 false,
                 Mat4.numFloats() * Float.SIZE_BYTES,
-                4 * Float.SIZE_BYTES
+                2 * 4 * Float.SIZE_BYTES
             )
             glEnableVertexAttribArray(5)
             glVertexAttribPointer(
@@ -106,22 +114,13 @@ class Scene142InstancingAsteroidField private constructor(
                 GL_FLOAT,
                 false,
                 Mat4.numFloats() * Float.SIZE_BYTES,
-                2 * 4 * Float.SIZE_BYTES
-            )
-            glEnableVertexAttribArray(6)
-            glVertexAttribPointer(
-                6,
-                4,
-                GL_FLOAT,
-                false,
-                Mat4.numFloats() * Float.SIZE_BYTES,
                 3 * 4 * Float.SIZE_BYTES
             )
 
+            glVertexAttribDivisor(2, 1)
             glVertexAttribDivisor(3, 1)
             glVertexAttribDivisor(4, 1)
             glVertexAttribDivisor(5, 1)
-            glVertexAttribDivisor(6, 1)
 
             glBindVertexArray(0)
         }.also {
@@ -136,7 +135,6 @@ class Scene142InstancingAsteroidField private constructor(
         planetModel.bind(
             planetProgram, ProgramLocations(
                 attribPosition = planetProgram.getAttributeLocation("aPos"),
-                attribNormal = planetProgram.getAttributeLocation("aNormal"),
                 attribTexCoords = planetProgram.getAttributeLocation("aTexCoords"),
                 uniformDiffuseTexture = planetProgram.getUniformLocation("texture1")
             )

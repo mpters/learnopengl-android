@@ -99,6 +99,11 @@ object LearnOpenGL {
                         Scene142InstancingAsteroidField.create(
                             context
                         )
+                    },
+                    Chapter("Anti-aliasing: Off-screen (ES 3.1 only)") { context ->
+                        Scene15AntiAliasingOffScreen.create(
+                            context
+                        )
                     }
                 )
             )
