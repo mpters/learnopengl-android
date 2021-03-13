@@ -27,10 +27,12 @@ fun IntArray.toIntBuffer(): IntBuffer = ByteBuffer
         it.put(this).position(0)
     }
 
+fun Mat4.Companion.numFloats() = 16
+
 /**
  * Size of the underlying float array in bytes.
  */
-fun Mat4.Companion.sizeBytes() = 4 * 4 * Float.SIZE_BYTES
+fun Mat4.Companion.sizeBytes() = numFloats() * Float.SIZE_BYTES
 
 /**
  * Creates a [FloatBuffer] with transposed Mat4 values and sets the position to the start.

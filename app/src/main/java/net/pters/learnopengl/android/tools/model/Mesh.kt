@@ -60,6 +60,13 @@ class Mesh(
         glDrawElements(GL_TRIANGLES, indices.capacity(), GL_UNSIGNED_INT, 0)
     }
 
+    fun drawInstanced(count: Int) {
+        glBindVertexArray(data.getVaoId())
+        glDrawElementsInstanced(GL_TRIANGLES, indices.capacity(), GL_UNSIGNED_INT, 0, count)
+    }
+
+    fun getVaoId() = data.getVaoId()
+
     fun setTexturesAndUniforms() {
         val program = this.program
         val locations = this.locations

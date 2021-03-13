@@ -8,10 +8,19 @@ class Model(private val meshes: List<Mesh>) {
         meshes.forEach { it.bind(program, locations) }
     }
 
+    fun getMeshes() = meshes
+
     fun draw() {
         meshes.forEach {
             it.setTexturesAndUniforms()
             it.draw()
+        }
+    }
+
+    fun drawInstanced(count: Int) {
+        meshes.forEach {
+            it.setTexturesAndUniforms()
+            it.drawInstanced(count)
         }
     }
 
