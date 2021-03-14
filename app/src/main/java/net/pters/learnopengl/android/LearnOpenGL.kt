@@ -1,6 +1,7 @@
 package net.pters.learnopengl.android
 
 import android.content.Context
+import net.pters.learnopengl.android.scenes.advancedlighting.Scene1BlinnPhong
 import net.pters.learnopengl.android.scenes.advancedopengl.*
 import net.pters.learnopengl.android.scenes.gettingstarted.*
 import net.pters.learnopengl.android.scenes.lighting.*
@@ -105,6 +106,12 @@ object LearnOpenGL {
                             context
                         )
                     }
+                )
+            ),
+            Section(
+                "Advanced lighting",
+                listOf(
+                    Chapter("Blinn-Phong") { context -> Scene1BlinnPhong.create(context) },
                 )
             )
         )
