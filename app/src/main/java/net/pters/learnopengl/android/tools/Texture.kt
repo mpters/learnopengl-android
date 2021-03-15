@@ -5,7 +5,7 @@ import android.opengl.GLES30.*
 import android.opengl.GLUtils
 import java.nio.IntBuffer
 
-class Texture(private val bitmap: Bitmap) {
+class Texture(private val bitmap: Bitmap, private val internalFormat: Int? = null) {
 
     private var id: Int? = null
 
@@ -33,7 +33,12 @@ class Texture(private val bitmap: Bitmap) {
         )
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
-        GLUtils.texImage2D(GL_TEXTURE_2D, 0, bitmap, 0)
+        internalFormat?.also {
+            GLUtils.texImage2D(GL_TEXTURE_2D, 0, it, bitmap, 0)
+        } ?: run {
+            GLUtils.texImage2D(GL_TEXTURE_2D, 0, bitmap, 0)
+        }
+
         glGenerateMipmap(GL_TEXTURE_2D)
     }
 }

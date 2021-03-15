@@ -27,6 +27,12 @@ class Program private constructor(
     fun set3f(uniformName: String, f1: Float, f2: Float, f3: Float) =
         glUniform3f(getUniformLocation(uniformName), f1, f2, f3)
 
+    fun setBoolean(uniformName: String, b: Boolean) = if (b) {
+        setInt(getUniformLocation(uniformName), 1)
+    } else {
+        setInt(getUniformLocation(uniformName), 0)
+    }
+
     fun setFloat(location: Int, f: Float) = glUniform1f(location, f)
 
     fun setFloat(uniformName: String, f: Float) = glUniform1f(getUniformLocation(uniformName), f)
