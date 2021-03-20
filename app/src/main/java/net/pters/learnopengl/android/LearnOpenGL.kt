@@ -3,6 +3,7 @@ package net.pters.learnopengl.android
 import android.content.Context
 import net.pters.learnopengl.android.scenes.advancedlighting.Scene1BlinnPhong
 import net.pters.learnopengl.android.scenes.advancedlighting.Scene2GammaCorrection
+import net.pters.learnopengl.android.scenes.advancedlighting.Scene31ShadowMapping
 import net.pters.learnopengl.android.scenes.advancedopengl.*
 import net.pters.learnopengl.android.scenes.gettingstarted.*
 import net.pters.learnopengl.android.scenes.lighting.*
@@ -113,7 +114,12 @@ object LearnOpenGL {
                 "Advanced lighting",
                 listOf(
                     Chapter("Blinn-Phong") { context -> Scene1BlinnPhong.create(context) },
-                    Chapter("Gamma correction") { context -> Scene2GammaCorrection.create(context) }
+                    Chapter("Gamma correction") { context -> Scene2GammaCorrection.create(context) },
+                    Chapter("Shadows: Shadow mapping") { context ->
+                        Scene31ShadowMapping.create(
+                            context
+                        )
+                    }
                 )
             )
         )
