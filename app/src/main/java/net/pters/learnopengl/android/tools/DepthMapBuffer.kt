@@ -14,7 +14,7 @@ class DepthMapBuffer private constructor(private val sizePx: Int) {
         glTexImage2D(
             GL_TEXTURE_2D,
             0,
-            GL_DEPTH_COMPONENT,
+            GL_DEPTH_COMPONENT32F,
             sizePx,
             sizePx,
             0,
