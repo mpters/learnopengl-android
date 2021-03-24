@@ -1,10 +1,7 @@
 package net.pters.learnopengl.android
 
 import android.content.Context
-import net.pters.learnopengl.android.scenes.advancedlighting.Scene1BlinnPhong
-import net.pters.learnopengl.android.scenes.advancedlighting.Scene2GammaCorrection
-import net.pters.learnopengl.android.scenes.advancedlighting.Scene31ShadowMapping
-import net.pters.learnopengl.android.scenes.advancedlighting.Scene32PointShadows
+import net.pters.learnopengl.android.scenes.advancedlighting.*
 import net.pters.learnopengl.android.scenes.advancedopengl.*
 import net.pters.learnopengl.android.scenes.gettingstarted.*
 import net.pters.learnopengl.android.scenes.lighting.*
@@ -121,7 +118,8 @@ object LearnOpenGL {
                     },
                     Chapter("Shadows: Point shadows") { context ->
                         Scene32PointShadows.create(context)
-                    }
+                    },
+                    Chapter("Normal mapping") { context -> Scene4NormalMapping.create(context) }
                 )
             )
         )
