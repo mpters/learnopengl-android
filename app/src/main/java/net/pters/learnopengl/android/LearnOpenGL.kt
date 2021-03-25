@@ -120,7 +120,12 @@ object LearnOpenGL {
                         Scene32PointShadows.create(context)
                     },
                     Chapter("Normal mapping") { context -> Scene4NormalMapping.create(context) },
-                    Chapter("Parallax mapping") { context -> Scene51ParallaxMapping.create(context) }
+                    Chapter("Parallax mapping") { context -> Scene51ParallaxMapping.create(context) },
+                    Chapter("Steep parallax mapping") { context ->
+                        Scene52SteepParallaxMapping.create(
+                            context
+                        )
+                    }
                 )
             )
         )
