@@ -125,6 +125,11 @@ object LearnOpenGL {
                         Scene52SteepParallaxMapping.create(
                             context
                         )
+                    },
+                    Chapter("Parallax occlusion mapping") { context ->
+                        Scene53ParallaxOcclusionMapping.create(
+                            context
+                        )
                     }
                 )
             )
