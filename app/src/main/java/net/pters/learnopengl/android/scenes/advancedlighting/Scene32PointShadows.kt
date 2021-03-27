@@ -198,12 +198,12 @@ class Scene32PointShadows private constructor(
             glTexImage2D(
                 i,
                 0,
-                GL_DEPTH_COMPONENT32F,
+                GL_DEPTH_COMPONENT16,
                 512,
                 512,
                 0,
                 GL_DEPTH_COMPONENT,
-                GL_FLOAT,
+                GL_UNSIGNED_INT,
                 null
             )
         }

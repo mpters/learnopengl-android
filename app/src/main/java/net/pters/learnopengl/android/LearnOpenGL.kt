@@ -130,7 +130,8 @@ object LearnOpenGL {
                         Scene53ParallaxOcclusionMapping.create(
                             context
                         )
-                    }
+                    },
+                    Chapter("HDR") { context -> Scene6HDR.create(context) }
                 )
             )
         )

@@ -4,6 +4,7 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import androidx.annotation.RawRes
+import com.curiouscreature.kotlin.math.Float3
 import com.curiouscreature.kotlin.math.Float4
 import com.curiouscreature.kotlin.math.Mat4
 import java.nio.*
@@ -12,6 +13,8 @@ fun Bitmap.flipVertically(): Bitmap {
     val matrix = Matrix().apply { postScale(1.0f, -1.0f, width / 2.0f, height / 2.0f) }
     return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
 }
+
+fun Float3.toArray() = floatArrayOf(x, y, z)
 
 fun FloatArray.toFloatBuffer(): FloatBuffer = ByteBuffer
     .allocateDirect(this.size * Float.SIZE_BYTES)
