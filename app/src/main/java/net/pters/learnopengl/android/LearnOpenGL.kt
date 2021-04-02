@@ -132,7 +132,8 @@ object LearnOpenGL {
                         )
                     },
                     Chapter("HDR") { context -> Scene6HDR.create(context) },
-                    Chapter("Bloom") { context -> Scene7Bloom.create(context) }
+                    Chapter("Bloom") { context -> Scene7Bloom.create(context) },
+                    Chapter("Deferred shading") { context -> Scene81DeferredShading.create(context) }
                 )
             )
         )

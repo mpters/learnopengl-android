@@ -94,7 +94,7 @@ class Scene7Bloom private constructor(
             glDrawArrays(GL_TRIANGLES, 0, 36)
         }
 
-        // Linally show all the light sources as bright cubes
+        // Finally show all the light sources as bright cubes
         lightBoxProgram.use()
         lightBoxProgram.setMat4("view", view)
         lights.keys.forEach { position ->
