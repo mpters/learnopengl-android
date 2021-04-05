@@ -6,7 +6,7 @@ data class ProgramLocations(
     val attribPosition: Int,
     val attribNormal: Int? = null,
     val attribTexCoords: Int,
-    val uniformDiffuseTexture: Int,
+    val uniformDiffuseTexture: Int?,
     val uniformSpecularTexture: Int? = null,
     val uniformShininess: Int? = null
 )

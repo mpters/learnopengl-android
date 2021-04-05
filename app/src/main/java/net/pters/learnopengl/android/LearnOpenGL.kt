@@ -138,7 +138,8 @@ object LearnOpenGL {
                         Scene82DeferredShadingVolumes.create(
                             context
                         )
-                    }
+                    },
+                    Chapter("SSAO") { context -> Scene9SSAO.create(context) }
                 )
             )
         )

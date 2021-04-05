@@ -78,10 +78,10 @@ class Mesh(
 
         program.use()
 
-        material.diffuseTexture?.also {
+        material.diffuseTexture?.also { texture ->
             glActiveTexture(GL_TEXTURE0)
-            glBindTexture(GL_TEXTURE_2D, it.getId())
-            program.setInt(locations.uniformDiffuseTexture, 0)
+            glBindTexture(GL_TEXTURE_2D, texture.getId())
+            locations.uniformDiffuseTexture?.let { program.setInt(it, 0) }
         }
         material.specularTexture?.also { texture ->
             glActiveTexture(GL_TEXTURE1)
