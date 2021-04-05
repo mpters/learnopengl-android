@@ -50,7 +50,9 @@ class Mesh(
         locations.attribNormal?.also {
             data.addAttribute(it, 3, 3)
         }
-        data.addAttribute(locations.attribTexCoords, 2, 6)
+        locations.attribTexCoords?.also {
+            data.addAttribute(it, 2, 6)
+        }
         data.bind()
 
         material.diffuseTexture?.load()

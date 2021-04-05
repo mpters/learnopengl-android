@@ -163,7 +163,6 @@ class Scene9SSAO private constructor(
         cubeVertexData = VertexData(Vertices.ndcCubeWithNormalsAndTexture, null, 8)
         cubeVertexData.addAttribute(gBufferProgram.getAttributeLocation("aPos"), 3, 0)
         cubeVertexData.addAttribute(gBufferProgram.getAttributeLocation("aNormal"), 3, 3)
-        cubeVertexData.addAttribute(gBufferProgram.getAttributeLocation("aTexCoords"), 2, 6)
         cubeVertexData.bind()
 
         screenQuadVertexData = VertexData(Vertices.ndcQuadWithTexture, null, 4)
@@ -175,7 +174,7 @@ class Scene9SSAO private constructor(
             gBufferProgram, ProgramLocations(
                 attribPosition = gBufferProgram.getAttributeLocation("aPos"),
                 attribNormal = gBufferProgram.getAttributeLocation("aNormal"),
-                attribTexCoords = gBufferProgram.getAttributeLocation("aTexCoords"),
+                attribTexCoords = null,
                 uniformDiffuseTexture = null
             )
         )

@@ -20,7 +20,8 @@ class Scene13GeometryShadersVisualizingNormals private constructor(
     private val normalVertexShaderCode: String,
     private val normalFragmentShaderCode: String,
     private val normalGeoShaderCode: String,
-    private val backpackModel: Model
+    private val backpackModel: Model,
+    private val backpackNormalModel: Model
 ) : Scene() {
 
     private val camera = Camera(
@@ -44,7 +45,7 @@ class Scene13GeometryShadersVisualizingNormals private constructor(
 
         normalProgram.use()
         normalProgram.setMat4("view", view)
-        backpackModel.draw()
+        backpackNormalModel.draw()
     }
 
     override fun getCamera() = camera
@@ -75,6 +76,14 @@ class Scene13GeometryShadersVisualizingNormals private constructor(
                 uniformDiffuseTexture = modelProgram.getUniformLocation("texture_diffuse1")
             )
         )
+        backpackNormalModel.bind(
+            normalProgram, ProgramLocations(
+                attribPosition = modelProgram.getAttributeLocation("aPos"),
+                attribNormal = modelProgram.getAttributeLocation("aNormal"),
+                attribTexCoords = null,
+                uniformDiffuseTexture = null
+            )
+        )
     }
 
     companion object {
@@ -87,7 +96,13 @@ class Scene13GeometryShadersVisualizingNormals private constructor(
                 normalVertexShaderCode = resources.readRawTextFile(R.raw.advancedopengl_scene13_geometry_shaders_visualizing_normals_display_vert),
                 normalFragmentShaderCode = resources.readRawTextFile(R.raw.advancedopengl_scene13_geometry_shaders_visualizing_normals_display_frag),
                 normalGeoShaderCode = resources.readRawTextFile(R.raw.advancedopengl_scene13_geometry_shaders_visualizing_normals_display_geo),
-                ObjLoader.fromAssets(
+                backpackModel = ObjLoader.fromAssets(
+                    context,
+                    directory = "backpack",
+                    objFileName = "backpack.obj",
+                    mtlFileName = "backpack.mtl"
+                ),
+                backpackNormalModel = ObjLoader.fromAssets(
                     context,
                     directory = "backpack",
                     objFileName = "backpack.obj",
