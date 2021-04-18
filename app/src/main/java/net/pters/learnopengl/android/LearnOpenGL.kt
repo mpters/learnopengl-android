@@ -6,7 +6,8 @@ import net.pters.learnopengl.android.scenes.advancedopengl.*
 import net.pters.learnopengl.android.scenes.gettingstarted.*
 import net.pters.learnopengl.android.scenes.lighting.*
 import net.pters.learnopengl.android.scenes.modelloading.SceneBackpack
-import net.pters.learnopengl.android.scenes.pbr.Scene1Lighting
+import net.pters.learnopengl.android.scenes.pbr.Scene11Lighting
+import net.pters.learnopengl.android.scenes.pbr.Scene12LightingTextured
 import net.pters.learnopengl.android.tools.Scene
 
 object LearnOpenGL {
@@ -146,7 +147,12 @@ object LearnOpenGL {
             Section(
                 "PBR",
                 listOf(
-                    Chapter("Lighting") { context -> Scene1Lighting.create(context) }
+                    Chapter("Lighting") { context -> Scene11Lighting.create(context) },
+                    Chapter("Lighting: Textured") { context ->
+                        Scene12LightingTextured.create(
+                            context
+                        )
+                    }
                 )
             ),
         )
