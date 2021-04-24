@@ -8,7 +8,6 @@ import net.pters.learnopengl.android.tools.*
 import kotlin.math.cos
 import kotlin.math.sin
 
-
 class Scene12LightingTextured private constructor(
     private val vertexShaderCode: String,
     private val fragmentShaderCode: String,
