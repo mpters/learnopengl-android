@@ -5,6 +5,7 @@ import net.pters.learnopengl.android.scenes.advancedlighting.*
 import net.pters.learnopengl.android.scenes.advancedopengl.*
 import net.pters.learnopengl.android.scenes.gettingstarted.*
 import net.pters.learnopengl.android.scenes.inpractice.Scene1TextRendering
+import net.pters.learnopengl.android.scenes.inpractice.breakout.GameScene
 import net.pters.learnopengl.android.scenes.lighting.*
 import net.pters.learnopengl.android.scenes.modelloading.SceneBackpack
 import net.pters.learnopengl.android.scenes.pbr.Scene11Lighting
@@ -159,7 +160,8 @@ object LearnOpenGL {
             Section(
                 "In practice",
                 listOf(
-                    Chapter("Text rendering") { context -> Scene1TextRendering.create(context) }
+                    Chapter("Text rendering") { context -> Scene1TextRendering.create(context) },
+                    Chapter("2D game: Breakout") { context -> GameScene.create(context) }
                 )
             )
         )
