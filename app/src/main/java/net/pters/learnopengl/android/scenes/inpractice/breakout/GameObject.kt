@@ -4,7 +4,7 @@ import com.curiouscreature.kotlin.math.Float2
 import com.curiouscreature.kotlin.math.Float3
 import net.pters.learnopengl.android.tools.Texture
 
-data class GameObject(
+open class GameObject(
     val position: Float2,
     val size: Float2,
     val velocity: Float2 = Float2(0.0f, 0.0f),

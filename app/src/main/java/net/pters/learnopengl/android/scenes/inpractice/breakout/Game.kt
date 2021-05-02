@@ -24,6 +24,8 @@ class Game(
 
     private lateinit var player: GameObject
 
+    private lateinit var ball: Ball
+
     fun init() {
         val spriteProgram = resourceManager.loadProgram(
             "sprite",
@@ -33,6 +35,7 @@ class Game(
         spriteRenderer = SpriteRenderer(spriteProgram)
 
         resourceManager.loadTexture("background", R.raw.texture_background)
+        resourceManager.loadTexture("face", R.raw.texture_awesomeface)
         resourceManager.loadTexture("paddle", R.raw.texture_paddle)
         resourceManager.loadTexture("block", R.raw.texture_block)
         resourceManager.loadTexture("block_solid", R.raw.texture_block_solid)
@@ -58,6 +61,18 @@ class Game(
             texture = resourceManager.getTexture("paddle")
         )
 
+        val initialBallVelocity = Float2(100.0f, -350.0f)
+        val ballRadius = 25.0f
+        ball = Ball(
+            position = player.position + Float2(
+                playerSize.x / 2.0f - ballRadius,
+                -ballRadius * 2.0f
+            ),
+            radius = ballRadius,
+            velocity = initialBallVelocity,
+            texture = resourceManager.getTexture("face")
+        )
+
         val projection = ortho(0.0f, width.toFloat(), height.toFloat(), 0.0f, -1.0f, 1.0f)
         spriteProgram.use()
         spriteProgram.setMat4("projection", projection)
@@ -73,6 +88,9 @@ class Game(
                 ) -> {
                     if (player.position.x >= 0.0f) {
                         player.position.x -= velocity
+                        if (ball.stuck) {
+                            ball.position.x -= velocity
+                        }
                     }
                 }
                 inputTracker.lastAction == InputTracker.Action.DOWN && inputTracker.isLowerRight(
@@ -81,13 +99,23 @@ class Game(
                 ) -> {
                     if (player.position.x <= width - player.size.x) {
                         player.position.x += velocity
+                        if (ball.stuck) {
+                            ball.position.x += velocity
+                        }
+                    }
+                }
+                inputTracker.lastAction == InputTracker.Action.UP -> {
+                    if (ball.stuck) {
+                        ball.stuck = false
                     }
                 }
             }
         }
     }
 
-    fun update(deltaSecs: Float) {}
+    fun update(deltaSecs: Float) {
+        ball.move(deltaSecs, width)
+    }
 
     fun render() {
         if (state == State.ACTIVE) {
@@ -99,6 +127,7 @@ class Game(
             levels[currentLevel].draw(spriteRenderer)
 
             player.draw(spriteRenderer)
+            ball.draw(spriteRenderer)
         }
     }
 
