@@ -9,7 +9,9 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.curiouscreature.kotlin.math.Float2
 import net.pters.learnopengl.android.LearnOpenGL
+import net.pters.learnopengl.android.tools.InputTracker
 import net.pters.learnopengl.android.tools.Scene
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -83,15 +85,24 @@ class SceneActivity : AppCompatActivity() {
             return when (event?.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     scene.getCamera()?.startLooking(event.x, event.y)
+                    scene.getInputTracker()?.lastAction = InputTracker.Action.DOWN
+                    scene.getInputTracker()?.position = Float2(event.x, event.y)
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (!isScaling) {
                         scene.getCamera()?.lookAround(event.x, event.y)
                     }
+                    scene.getInputTracker()?.position = Float2(event.x, event.y)
                     true
                 }
-                MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_UP -> {
+                MotionEvent.ACTION_UP -> {
+                    scene.getCamera()?.halt()
+                    scene.getInputTracker()?.lastAction = InputTracker.Action.UP
+                    scene.getInputTracker()?.position = Float2(event.x, event.y)
+                    true
+                }
+                MotionEvent.ACTION_POINTER_DOWN -> {
                     scene.getCamera()?.halt()
                     true
                 }

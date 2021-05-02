@@ -35,6 +35,9 @@ class ResourceManager(private val contextProvider: ContextProvider) {
         return texture
     }
 
+    fun readTextFile(@RawRes textFileId: Int) =
+        contextProvider.getContext().resources.readRawTextFile(textFileId)
+
     interface ContextProvider {
         fun getContext(): Context
     }

@@ -10,11 +10,13 @@ abstract class Scene {
 
     open fun getCamera(): Camera? = null
 
+    open fun getInputTracker(): InputTracker? = null
+
     fun postInit() {
         timer.tick()
     }
 
-    fun preDraw() {
+    open fun preDraw() {
         getCamera()?.advance(timer.sinceLastFrameSecs())
         timer.tick()
     }
