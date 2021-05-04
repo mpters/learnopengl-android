@@ -2,9 +2,9 @@ An attempt to implement all tutorials from [LearnOpenGL.com](https://learnopengl
 
 ## Scene controls
 
-* It is possible to move around in the scene from chapter Getting started: Camera onward.
+* It is possible to move around in the scene from chapter *Getting started: Camera* onward
 * Tap and move to look around
-* Pinch / unpinch to move fordward / backward
+* Pinch / unpinch to move forward / backward
 
 ## Status
 
