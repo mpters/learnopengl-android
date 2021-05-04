@@ -1,5 +1,11 @@
 An attempt to implement all tutorials from [LearnOpenGL.com](https://learnopengl.com/) for Android with OpenGL ES 3.0 using Kotlin only.
 
+## Scene controls
+
+* It is possible to move around in the scene from chapter Getting started: Camera onward.
+* Tap and move to look around
+* Pinch / unpinch to move fordward / backward
+
 ## Status
 
 - [x] Getting started
