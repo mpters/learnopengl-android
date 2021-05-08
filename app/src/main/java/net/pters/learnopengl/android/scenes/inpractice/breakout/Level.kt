@@ -6,7 +6,7 @@ import com.curiouscreature.kotlin.math.Float3
 
 class Level(private val resourceManager: ResourceManager) {
 
-    private val bricks = mutableListOf<GameObject>()
+    val bricks = mutableListOf<GameObject>()
 
     fun draw(renderer: SpriteRenderer) {
         bricks.forEach { brick ->

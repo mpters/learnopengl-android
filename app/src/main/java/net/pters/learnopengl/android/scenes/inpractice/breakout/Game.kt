@@ -1,9 +1,12 @@
 package net.pters.learnopengl.android.scenes.inpractice.breakout
 
 import com.curiouscreature.kotlin.math.Float2
+import com.curiouscreature.kotlin.math.clamp
+import com.curiouscreature.kotlin.math.length
 import com.curiouscreature.kotlin.math.ortho
 import net.pters.learnopengl.android.R
 import net.pters.learnopengl.android.tools.InputTracker
+
 
 class Game(
     contextProvider: ResourceManager.ContextProvider,
@@ -115,6 +118,7 @@ class Game(
 
     fun update(deltaSecs: Float) {
         ball.move(deltaSecs, width)
+        doCollisions()
     }
 
     fun render() {
@@ -129,6 +133,30 @@ class Game(
             player.draw(spriteRenderer)
             ball.draw(spriteRenderer)
         }
+    }
+
+    private fun doCollisions() = levels[currentLevel].bricks.forEach { brick ->
+        if (brick.destroyed.not()) {
+            if (ball.intersectsWith(brick) && brick.solid.not()) {
+                brick.destroyed = true
+            }
+        }
+    }
+
+    private fun Ball.intersectsWith(other: GameObject): Boolean {
+        // Get center point circle first
+        val center = position + radius
+        // Calculate AABB info (center, half-extents)
+        val aabbHalfExtents = other.size / 2.0f
+        val aabbCenter = other.position + aabbHalfExtents
+        // Get difference vector between both centers
+        var difference = center - aabbCenter
+        val clamped = clamp(difference, -aabbHalfExtents, aabbHalfExtents)
+        // Add clamped value to aabbCenter and we get the value of box closest to circle
+        val closest = aabbCenter + clamped
+        // Retrieve vector between center circle and closest point AABB and check if length <= radius
+        difference = closest - center
+        return length(difference) < radius
     }
 
     enum class State { ACTIVE, MENU, WIN }

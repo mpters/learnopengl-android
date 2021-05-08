@@ -5,7 +5,7 @@ import net.pters.learnopengl.android.tools.Texture
 
 class Ball(
     position: Float2,
-    radius: Float,
+    val radius: Float,
     var stuck: Boolean = true,
     velocity: Float2,
     texture: Texture

@@ -11,7 +11,7 @@ open class GameObject(
     val color: Float3 = Float3(1.0f),
     val rotation: Float = 0.0f,
     val solid: Boolean,
-    val destroyed: Boolean = false,
+    var destroyed: Boolean = false,
     val texture: Texture
 ) {
 
