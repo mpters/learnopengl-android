@@ -4,9 +4,11 @@ import androidx.annotation.RawRes
 import com.curiouscreature.kotlin.math.Float2
 import com.curiouscreature.kotlin.math.Float3
 
-class Level(private val resourceManager: ResourceManager) {
+class Level(private val resourceManager: ResourceManager, @RawRes private val levelId: Int) {
 
     val bricks = mutableListOf<GameObject>()
+
+    private var bricksCopy = listOf<GameObject>()
 
     fun draw(renderer: SpriteRenderer) {
         bricks.forEach { brick ->
@@ -25,7 +27,7 @@ class Level(private val resourceManager: ResourceManager) {
         return true
     }
 
-    fun load(@RawRes levelId: Int, levelWidth: Int, levelHeight: Int) {
+    fun load(levelWidth: Int, levelHeight: Int) {
         bricks.clear()
 
         val tileData = mutableListOf<List<Int>>()

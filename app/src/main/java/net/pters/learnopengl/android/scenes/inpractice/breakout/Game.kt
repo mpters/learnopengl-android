@@ -1,11 +1,9 @@
 package net.pters.learnopengl.android.scenes.inpractice.breakout
 
-import com.curiouscreature.kotlin.math.Float2
-import com.curiouscreature.kotlin.math.clamp
-import com.curiouscreature.kotlin.math.length
-import com.curiouscreature.kotlin.math.ortho
+import com.curiouscreature.kotlin.math.*
 import net.pters.learnopengl.android.R
 import net.pters.learnopengl.android.tools.InputTracker
+import kotlin.math.absoluteValue
 
 
 class Game(
@@ -43,20 +41,19 @@ class Game(
         resourceManager.loadTexture("block", R.raw.texture_block)
         resourceManager.loadTexture("block_solid", R.raw.texture_block_solid)
 
-        var level = Level(resourceManager)
-        level.load(R.raw.breakout_one, width, height / 2)
+        var level = Level(resourceManager, R.raw.breakout_one)
+        level.load(width, height / 2)
         levels.add(level)
-        level = Level(resourceManager)
-        level.load(R.raw.breakout_two, width, height / 2)
+        level = Level(resourceManager, R.raw.breakout_two)
+        level.load(width, height / 2)
         levels.add(level)
-        level = Level(resourceManager)
-        level.load(R.raw.breakout_three, width, height / 2)
+        level = Level(resourceManager, R.raw.breakout_three)
+        level.load(width, height / 2)
         levels.add(level)
-        level = Level(resourceManager)
-        level.load(R.raw.breakout_four, width, height / 2)
+        level = Level(resourceManager, R.raw.breakout_four)
+        level.load(width, height / 2)
         levels.add(level)
 
-        val playerSize = Float2(200.0f, 40.0f)
         player = GameObject(
             position = Float2(width / 2 - playerSize.x / 2.0f, height - playerSize.y),
             size = playerSize,
@@ -64,7 +61,6 @@ class Game(
             texture = resourceManager.getTexture("paddle")
         )
 
-        val initialBallVelocity = Float2(100.0f, -350.0f)
         val ballRadius = 25.0f
         ball = Ball(
             position = player.position + Float2(
@@ -119,6 +115,11 @@ class Game(
     fun update(deltaSecs: Float) {
         ball.move(deltaSecs, width)
         doCollisions()
+
+        if (ball.position.y >= height) { // Did ball reach bottom edge?
+            resetLevel()
+            resetPlayer()
+        }
     }
 
     fun render() {
@@ -137,13 +138,91 @@ class Game(
 
     private fun doCollisions() = levels[currentLevel].bricks.forEach { brick ->
         if (brick.destroyed.not()) {
-            if (ball.intersectsWith(brick) && brick.solid.not()) {
-                brick.destroyed = true
+            val collision = ball.checkCollision(brick)
+            if (collision.first) {
+                // Destroy block if not solid
+                if (brick.solid.not()) {
+                    brick.destroyed = true
+                }
+
+                // Collision resolution
+                val dir = collision.second
+                val diffVector = collision.third
+                when (dir) {
+                    Direction.LEFT, Direction.RIGHT -> { // Horizontal collision
+                        ball.velocity.x = -ball.velocity.x // Reverse horizontal velocity
+                        // Relocate
+                        val penetration = ball.radius - diffVector.x.absoluteValue
+                        if (dir == Direction.LEFT) {
+                            ball.position.x += penetration // Move ball to right
+                        } else {
+                            ball.position.x -= penetration // Move ball to left
+                        }
+                    }
+                    Direction.UP, Direction.DOWN -> { // Vertical collision
+                        ball.velocity.y = -ball.velocity.y // Reverse vertical velocity
+                        // Relocate
+                        val penetration = ball.radius - diffVector.y.absoluteValue
+                        if (dir == Direction.UP) {
+                            ball.position.y -= penetration // Move ball back up
+                        } else {
+                            ball.position.y += penetration // Move ball back down
+                        }
+                    }
+                }
             }
+        }
+    }.also {
+        val collision = ball.checkCollision(player)
+        if (ball.stuck.not() && collision.first) {
+            // Check where it hit the board, and change velocity based on where it hit the board
+            val centerBoard = player.position.x + player.size.x / 2.0f
+            val distance = (ball.position.x + ball.radius) - centerBoard
+            val percentage = distance / (player.size.x / 2.0f)
+            // Then move accordingly
+            val strength = 2.0f
+            val oldVelocity = ball.velocity
+            ball.velocity.x = initialBallVelocity.x + percentage * strength
+            ball.velocity.y = -ball.velocity.y.absoluteValue
+            ball.velocity.xy = normalize(ball.velocity) * length(oldVelocity)
         }
     }
 
-    private fun Ball.intersectsWith(other: GameObject): Boolean {
+    private fun resetLevel() {
+        levels[currentLevel].load(width, height / 2)
+    }
+
+    private fun resetPlayer() {
+        player.size.xy = playerSize
+        player.position.xy = Float2(width / 2.0f - playerSize.x / 2.0f, height - playerSize.y)
+        ball.position.xy =
+            player.position + Float2(playerSize.x / 2.0f - ball.radius, -(ball.radius * 2.0f))
+        ball.velocity.xy = initialBallVelocity
+        ball.stuck = true
+        inputTracker.lastAction = null
+    }
+
+    private fun vectorDirection(target: Float2): Direction {
+        val compass = mapOf(
+            Float2(0.0f, 1.0f) to Direction.UP,
+            Float2(1.0f, 0.0f) to Direction.RIGHT,
+            Float2(0.0f, -1.0f) to Direction.DOWN,
+            Float2(-1.0f, 0.0f) to Direction.LEFT
+        )
+
+        var max = 0.0f
+        var bestMatch: Direction? = null
+        compass.forEach { (t, u) ->
+            val dotProduct = dot(normalize(target), t)
+            if (dotProduct > max) {
+                max = dotProduct
+                bestMatch = u
+            }
+        }
+        return requireNotNull(bestMatch)
+    }
+
+    private fun Ball.checkCollision(other: GameObject): Triple<Boolean, Direction, Float2> {
         // Get center point circle first
         val center = position + radius
         // Calculate AABB info (center, half-extents)
@@ -156,8 +235,24 @@ class Game(
         val closest = aabbCenter + clamped
         // Retrieve vector between center circle and closest point AABB and check if length <= radius
         difference = closest - center
-        return length(difference) < radius
+
+        return if (length(difference) < radius) {
+            Triple(true, vectorDirection(difference), difference)
+        } else {
+            Triple(false, Direction.UP, Float2())
+        }
     }
 
     enum class State { ACTIVE, MENU, WIN }
+
+    private enum class Direction {
+        UP, RIGHT, DOWN, LEFT
+    }
+
+    companion object {
+
+        private val initialBallVelocity = Float2(100.0f, -350.0f)
+
+        private val playerSize = Float2(200.0f, 40.0f)
+    }
 }
