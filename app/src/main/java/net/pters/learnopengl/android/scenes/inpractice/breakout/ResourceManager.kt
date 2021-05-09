@@ -13,8 +13,6 @@ class ResourceManager(private val contextProvider: ContextProvider) {
 
     private val textures = mutableMapOf<String, Texture>()
 
-    fun getProgram(name: String) = programs.getValue(name)
-
     fun getTexture(name: String) = textures.getValue(name)
 
     fun loadProgram(name: String, @RawRes vertShaderId: Int, @RawRes fragShaderId: Int): Program {

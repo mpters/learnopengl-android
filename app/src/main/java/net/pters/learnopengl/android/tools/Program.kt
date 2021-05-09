@@ -2,7 +2,9 @@ package net.pters.learnopengl.android.tools
 
 import android.opengl.GLES30.*
 import android.opengl.GLES32
+import com.curiouscreature.kotlin.math.Float2
 import com.curiouscreature.kotlin.math.Float3
+import com.curiouscreature.kotlin.math.Float4
 import com.curiouscreature.kotlin.math.Mat4
 import java.nio.IntBuffer
 
@@ -37,8 +39,14 @@ class Program private constructor(
 
     fun setFloat(uniformName: String, f: Float) = glUniform1f(getUniformLocation(uniformName), f)
 
+    fun setFloat2(uniformName: String, f2: Float2) =
+        glUniform2f(getUniformLocation(uniformName), f2.x, f2.y)
+
     fun setFloat3(uniformName: String, f3: Float3) =
         glUniform3f(getUniformLocation(uniformName), f3.x, f3.y, f3.z)
+
+    fun setFloat4(uniformName: String, f4: Float4) =
+        glUniform4f(getUniformLocation(uniformName), f4.x, f4.y, f4.z, f4.w)
 
     fun setInt(location: Int, i: Int) = glUniform1i(location, i)
 

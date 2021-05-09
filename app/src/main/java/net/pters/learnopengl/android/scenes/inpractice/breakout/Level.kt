@@ -8,8 +8,6 @@ class Level(private val resourceManager: ResourceManager, @RawRes private val le
 
     val bricks = mutableListOf<GameObject>()
 
-    private var bricksCopy = listOf<GameObject>()
-
     fun draw(renderer: SpriteRenderer) {
         bricks.forEach { brick ->
             if (brick.destroyed.not()) {
