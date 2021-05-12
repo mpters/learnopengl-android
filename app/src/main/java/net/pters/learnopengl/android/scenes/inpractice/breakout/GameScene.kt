@@ -21,7 +21,7 @@ class GameScene private constructor(
 
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
         glClear(GL_COLOR_BUFFER_BIT)
-        game.render()
+        game.render(timer.sinceStartSecs())
     }
 
     override fun getInputTracker() = inputTracker

@@ -21,9 +21,13 @@ class Game(
 
     private var state = State.ACTIVE
 
+    private var shakeTime = 0.0f
+
     private lateinit var spriteRenderer: SpriteRenderer
 
     private lateinit var particleGenerator: ParticleGenerator
+
+    private lateinit var postProcessor: PostProcessor
 
     private lateinit var player: GameObject
 
@@ -53,6 +57,13 @@ class Game(
             particleProgram, resourceManager.getTexture("particle"),
             100
         )
+
+        val postProgram = resourceManager.loadProgram(
+            "post",
+            R.raw.inpractice_breakout_postprocessing_vert,
+            R.raw.inpractice_breakout_postprocessing_frag
+        )
+        postProcessor = PostProcessor(postProgram, width, height)
 
         var level = Level(resourceManager, R.raw.breakout_one)
         level.load(width, height / 2)
@@ -132,14 +143,24 @@ class Game(
         doCollisions()
         particleGenerator.update(deltaSecs, ball, 2, Float2(ball.radius / 2.0f))
 
+        // reduce shake time
+        if (shakeTime > 0.0f) {
+            shakeTime -= deltaSecs
+            if (shakeTime <= 0.0f) {
+                postProcessor.shake = false
+            }
+        }
+
         if (ball.position.y >= height) { // Did ball reach bottom edge?
             resetLevel()
             resetPlayer()
         }
     }
 
-    fun render() {
+    fun render(time: Float) {
         if (state == State.ACTIVE) {
+            postProcessor.beginRender()
+
             spriteRenderer.draw(
                 resourceManager.getTexture("background"),
                 Float2(0.0f),
@@ -150,6 +171,9 @@ class Game(
             player.draw(spriteRenderer)
             particleGenerator.draw()
             ball.draw(spriteRenderer)
+
+            postProcessor.endRender()
+            postProcessor.render(time)
         }
     }
 
@@ -160,6 +184,9 @@ class Game(
                 // Destroy block if not solid
                 if (brick.solid.not()) {
                     brick.destroyed = true
+                } else {
+                    shakeTime = 0.05f
+                    postProcessor.shake = true
                 }
 
                 // Collision resolution
@@ -262,7 +289,7 @@ class Game(
         }
     }
 
-    enum class State { ACTIVE, MENU, WIN }
+    enum class State { ACTIVE, /*MENU, WIN*/ }
 
     private enum class Direction {
         UP, RIGHT, DOWN, LEFT
