@@ -4,6 +4,7 @@ import com.curiouscreature.kotlin.math.*
 import net.pters.learnopengl.android.R
 import net.pters.learnopengl.android.tools.InputTracker
 import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 
 class Game(
@@ -16,6 +17,8 @@ class Game(
     private val resourceManager = ResourceManager(contextProvider)
 
     private val levels = mutableListOf<Level>()
+
+    private val powerUps = mutableListOf<PowerUp>()
 
     private var currentLevel = 0
 
@@ -47,6 +50,12 @@ class Game(
         resourceManager.loadTexture("block", R.raw.texture_block)
         resourceManager.loadTexture("block_solid", R.raw.texture_block_solid)
         resourceManager.loadTexture("particle", R.raw.texture_particle)
+        resourceManager.loadTexture("powerup_chaos", R.raw.texture_powerup_chaos)
+        resourceManager.loadTexture("powerup_confuse", R.raw.texture_powerup_confuse)
+        resourceManager.loadTexture("powerup_increase", R.raw.texture_powerup_increase)
+        resourceManager.loadTexture("powerup_passthrough", R.raw.texture_powerup_passthrough)
+        resourceManager.loadTexture("powerup_speed", R.raw.texture_powerup_speed)
+        resourceManager.loadTexture("powerup_sticky", R.raw.texture_powerup_sticky)
 
         val particleProgram = resourceManager.loadProgram(
             "particle",
@@ -80,7 +89,7 @@ class Game(
 
         player = GameObject(
             position = Float2(width / 2 - playerSize.x / 2.0f, height - playerSize.y),
-            size = playerSize,
+            size = playerSize.copy(),
             solid = true,
             texture = resourceManager.getTexture("paddle")
         )
@@ -130,6 +139,7 @@ class Game(
                     }
                 }
                 inputTracker.lastAction == InputTracker.Action.UP -> {
+                    inputTracker.lastAction = null
                     if (ball.stuck) {
                         ball.stuck = false
                     }
@@ -142,6 +152,7 @@ class Game(
         ball.move(deltaSecs, width)
         doCollisions()
         particleGenerator.update(deltaSecs, ball, 2, Float2(ball.radius / 2.0f))
+        updatePowerUps(deltaSecs)
 
         // reduce shake time
         if (shakeTime > 0.0f) {
@@ -169,6 +180,14 @@ class Game(
             levels[currentLevel].draw(spriteRenderer)
 
             player.draw(spriteRenderer)
+
+            // draw PowerUps
+            powerUps.forEach { powerUp ->
+                if (powerUp.destroyed.not()) {
+                    powerUp.draw(spriteRenderer)
+                }
+            }
+
             particleGenerator.draw()
             ball.draw(spriteRenderer)
 
@@ -184,6 +203,7 @@ class Game(
                 // Destroy block if not solid
                 if (brick.solid.not()) {
                     brick.destroyed = true
+                    spawnPowerUps(brick)
                 } else {
                     shakeTime = 0.05f
                     postProcessor.shake = true
@@ -192,27 +212,46 @@ class Game(
                 // Collision resolution
                 val dir = collision.second
                 val diffVector = collision.third
-                when (dir) {
-                    Direction.LEFT, Direction.RIGHT -> { // Horizontal collision
-                        ball.velocity.x = -ball.velocity.x // Reverse horizontal velocity
-                        // Relocate
-                        val penetration = ball.radius - diffVector.x.absoluteValue
-                        if (dir == Direction.LEFT) {
-                            ball.position.x += penetration // Move ball to right
-                        } else {
-                            ball.position.x -= penetration // Move ball to left
+                if (!(ball.passThrough && !brick.solid)) { // don't do collision resolution on non-solid bricks if pass-through is activated
+                    when (dir) {
+                        Direction.LEFT, Direction.RIGHT -> { // Horizontal collision
+                            ball.velocity.x = -ball.velocity.x // Reverse horizontal velocity
+                            // Relocate
+                            val penetration = ball.radius - diffVector.x.absoluteValue
+                            if (dir == Direction.LEFT) {
+                                ball.position.x += penetration // Move ball to right
+                            } else {
+                                ball.position.x -= penetration // Move ball to left
+                            }
+                        }
+                        Direction.UP, Direction.DOWN -> { // Vertical collision
+                            ball.velocity.y = -ball.velocity.y // Reverse vertical velocity
+                            // Relocate
+                            val penetration = ball.radius - diffVector.y.absoluteValue
+                            if (dir == Direction.UP) {
+                                ball.position.y -= penetration // Move ball back up
+                            } else {
+                                ball.position.y += penetration // Move ball back down
+                            }
                         }
                     }
-                    Direction.UP, Direction.DOWN -> { // Vertical collision
-                        ball.velocity.y = -ball.velocity.y // Reverse vertical velocity
-                        // Relocate
-                        val penetration = ball.radius - diffVector.y.absoluteValue
-                        if (dir == Direction.UP) {
-                            ball.position.y -= penetration // Move ball back up
-                        } else {
-                            ball.position.y += penetration // Move ball back down
-                        }
-                    }
+                }
+            }
+        }
+    }.also {
+        // also check collisions on PowerUps and if so, activate them
+        powerUps.forEach { powerUp ->
+            if (powerUp.destroyed.not()) {
+                // first check if powerup passed bottom edge, if so: keep as inactive and destroy
+                if (powerUp.position.y >= height) {
+                    powerUp.destroyed = true
+                }
+
+                if (player.checkCollision(powerUp)) {
+                    // collided with player, now activate powerup
+                    activatePowerUp(powerUp)
+                    powerUp.destroyed = true
+                    powerUp.activated = true
                 }
             }
         }
@@ -229,6 +268,9 @@ class Game(
             ball.velocity.x = initialBallVelocity.x * percentage * strength
             ball.velocity.xy = normalize(ball.velocity) * length(oldVelocity)
             ball.velocity.y = -ball.velocity.y.absoluteValue
+
+            // if Sticky powerup is activated, also stick ball to paddle once new velocity vectors were calculated
+            ball.stuck = ball.sticky
         }
     }
 
@@ -244,6 +286,15 @@ class Game(
         ball.velocity.xy = initialBallVelocity
         ball.stuck = true
         inputTracker.lastAction = null
+
+        // also disable all active powerups
+        powerUps.clear()
+        postProcessor.chaos = false
+        postProcessor.confuse = false
+        ball.passThrough = false
+        ball.sticky = false
+        ball.color.rgb = Float3(1.0f)
+        player.color.rgb = Float3(1.0f)
     }
 
     private fun vectorDirection(target: Float2): Direction? {
@@ -286,6 +337,158 @@ class Game(
             }
         } else {
             Triple(false, Direction.UP, Float2())
+        }
+    }
+
+    private fun GameObject.checkCollision(other: GameObject): Boolean {
+        // collision x-axis?
+        val collisionX =
+            position.x + size.x >= other.position.x && other.position.x + other.size.x >= position.x
+        // collision y-axis?
+        val collisionY =
+            position.y + size.y >= other.position.y && other.position.y + other.size.y >= position.y
+        return collisionX && collisionY
+    }
+
+    private fun shouldSpawn(chance: Int) = Random.nextInt(0, chance) == 0
+
+    private fun spawnPowerUps(brick: GameObject) {
+        if (shouldSpawn(75)) { // 1 in 75 chance
+            powerUps.add(
+                PowerUp(
+                    type = PowerUpType.SPEED,
+                    duration = 0.0f,
+                    position = brick.position.copy(),
+                    color = Float3(0.5f, 0.5f, 1.0f),
+                    texture = resourceManager.getTexture("powerup_speed")
+                )
+            )
+        }
+
+        if (shouldSpawn(75)) {
+            powerUps.add(
+                PowerUp(
+                    type = PowerUpType.STICKY,
+                    duration = 20.0f,
+                    position = brick.position.copy(),
+                    color = Float3(1.0f, 0.5f, 1.0f),
+                    texture = resourceManager.getTexture("powerup_sticky")
+                )
+            )
+        }
+
+        if (shouldSpawn(75)) {
+            powerUps.add(
+                PowerUp(
+                    type = PowerUpType.PASS_THROUGH,
+                    duration = 10.0f,
+                    position = brick.position.copy(),
+                    color = Float3(0.5f, 1.0f, 0.5f),
+                    texture = resourceManager.getTexture("powerup_passthrough")
+                )
+            )
+        }
+
+        if (shouldSpawn(75)) {
+            powerUps.add(
+                PowerUp(
+                    type = PowerUpType.INCREASE,
+                    duration = 0.0f,
+                    position = brick.position.copy(),
+                    color = Float3(1.0f, 0.6f, 0.4f),
+                    texture = resourceManager.getTexture("powerup_increase")
+                )
+            )
+        }
+
+        if (shouldSpawn(15)) { // negative powerups should spawn more often
+            powerUps.add(
+                PowerUp(
+                    type = PowerUpType.CONFUSE,
+                    duration = 15.0f,
+                    position = brick.position.copy(),
+                    color = Float3(1.0f, 0.3f, 0.3f),
+                    texture = resourceManager.getTexture("powerup_confuse")
+                )
+            )
+        }
+
+        if (shouldSpawn(15)) {
+            powerUps.add(
+                PowerUp(
+                    type = PowerUpType.CHAOS,
+                    duration = 15.0f,
+                    position = brick.position.copy(),
+                    color = Float3(0.9f, 0.25f, 0.25f),
+                    texture = resourceManager.getTexture("powerup_chaos")
+                )
+            )
+        }
+    }
+
+    private fun activatePowerUp(powerUp: PowerUp) {
+        if (powerUp.type == PowerUpType.SPEED) {
+            ball.velocity.xy *= 1.2f
+        } else if (powerUp.type == PowerUpType.STICKY) {
+            ball.sticky = true
+            player.color.rgb = Float3(1.0f, 0.5f, 1.0f)
+        } else if (powerUp.type == PowerUpType.PASS_THROUGH) {
+            ball.passThrough = true
+            ball.color.rgb = Float3(1.0f, 0.5f, 0.5f)
+        } else if (powerUp.type == PowerUpType.INCREASE) {
+            player.size.x += 100
+        } else if (powerUp.type == PowerUpType.CONFUSE) {
+            if (postProcessor.chaos.not()) {
+                postProcessor.confuse = true // only activate if chaos wasn't already active
+            }
+        } else if (powerUp.type == PowerUpType.CHAOS) {
+            if (postProcessor.confuse.not()) {
+                postProcessor.chaos = true
+            }
+        }
+    }
+
+    private fun isOtherPowerUpActive(type: PowerUpType) =
+        powerUps.any { it.activated && it.type == type }
+
+    private fun updatePowerUps(deltaSecs: Float) = powerUps.forEach { powerUp ->
+        powerUp.position.xy += powerUp.velocity * deltaSecs
+
+        if (powerUp.activated) {
+            powerUp.duration -= deltaSecs
+            if (powerUp.duration <= 0.0f) {
+                // remove powerup from list (will later be removed)
+                powerUp.activated = false
+
+                // deactivate effects
+                if (powerUp.type == PowerUpType.STICKY) {
+                    if (!isOtherPowerUpActive(PowerUpType.STICKY)) {
+                        // only reset if no other PowerUp of type sticky is active
+                        ball.sticky = false
+                        player.color.rgb = Float3(1.0f)
+                    } else if (powerUp.type == PowerUpType.PASS_THROUGH) {
+                        if (!isOtherPowerUpActive(PowerUpType.PASS_THROUGH)) {
+                            // only reset if no other PowerUp of type pass-through is active
+                            ball.passThrough = false
+                            ball.color.rgb = Float3(1.0f)
+                        }
+                    } else if (powerUp.type == PowerUpType.CONFUSE) {
+                        if (!isOtherPowerUpActive(PowerUpType.CONFUSE)) {
+                            // only reset if no other PowerUp of type confuse is active
+                            postProcessor.confuse = false
+                        }
+                    } else if (powerUp.type == PowerUpType.CHAOS) {
+                        if (!isOtherPowerUpActive(PowerUpType.CHAOS)) {
+                            // only reset if no other PowerUp of type chaos is active
+                            postProcessor.chaos = false
+                        }
+                    }
+                }
+            }
+        }
+    }.also {
+        powerUps.removeIf { powerUp ->
+            powerUp.destroyed && !powerUp.activated
         }
     }
 

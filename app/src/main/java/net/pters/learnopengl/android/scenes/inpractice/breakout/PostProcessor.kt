@@ -9,8 +9,8 @@ class PostProcessor(
     private val program: Program,
     private val width: Int,
     private val height: Int,
-    private var chaos: Boolean = false,
-    private var confuse: Boolean = false,
+    var chaos: Boolean = false,
+    var confuse: Boolean = false,
     var shake: Boolean = false,
 ) {
 

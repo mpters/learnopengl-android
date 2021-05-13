@@ -7,6 +7,8 @@ class Ball(
     position: Float2,
     val radius: Float,
     var stuck: Boolean = true,
+    var sticky: Boolean = false,
+    var passThrough: Boolean = false,
     velocity: Float2,
     texture: Texture
 ) : GameObject(
