@@ -9,6 +9,8 @@ class GameScene private constructor(
     private val contextProvider: ResourceManager.ContextProvider
 ) : Scene() {
 
+    var isInitialized = false
+
     private val inputTracker = InputTracker()
 
     private lateinit var game: Game
@@ -33,9 +35,14 @@ class GameScene private constructor(
 
         game = Game(contextProvider, inputTracker, width, height)
         game.init()
+        isInitialized = true
     }
 
     override fun preDraw() = Unit
+
+    override fun stop() {
+        game.stop()
+    }
 
     companion object {
 

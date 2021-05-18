@@ -56,6 +56,11 @@ class Game(
         resourceManager.loadTexture("powerup_passthrough", R.raw.texture_powerup_passthrough)
         resourceManager.loadTexture("powerup_speed", R.raw.texture_powerup_speed)
         resourceManager.loadTexture("powerup_sticky", R.raw.texture_powerup_sticky)
+        resourceManager.loadSound("bleep", R.raw.audio_bleep)
+        resourceManager.loadSound("bleep2", R.raw.audio_bleep2)
+        resourceManager.loadSound("breakout", R.raw.audio_breakout)
+        resourceManager.loadSound("powerup", R.raw.audio_powerup)
+        resourceManager.loadSound("solid", R.raw.audio_solid)
 
         val particleProgram = resourceManager.loadProgram(
             "particle",
@@ -110,6 +115,10 @@ class Game(
         spriteProgram.setMat4("projection", projection)
         particleProgram.use()
         particleProgram.setMat4("projection", projection)
+
+        val backgroundMusic = resourceManager.getSound("breakout")
+        backgroundMusic.isLooping = true
+        backgroundMusic.start()
     }
 
     fun processInput(deltaSecs: Float) {
@@ -168,6 +177,10 @@ class Game(
         }
     }
 
+    fun stop() {
+        resourceManager.stopSounds()
+    }
+
     fun render(time: Float) {
         if (state == State.ACTIVE) {
             postProcessor.beginRender()
@@ -204,9 +217,11 @@ class Game(
                 if (brick.solid.not()) {
                     brick.destroyed = true
                     spawnPowerUps(brick)
+                    resourceManager.getSound("bleep").start()
                 } else {
                     shakeTime = 0.05f
                     postProcessor.shake = true
+                    resourceManager.getSound("bleep").start()
                 }
 
                 // Collision resolution
@@ -252,6 +267,7 @@ class Game(
                     activatePowerUp(powerUp)
                     powerUp.destroyed = true
                     powerUp.activated = true
+                    resourceManager.getSound("powerup").start()
                 }
             }
         }
@@ -271,6 +287,8 @@ class Game(
 
             // if Sticky powerup is activated, also stick ball to paddle once new velocity vectors were calculated
             ball.stuck = ball.sticky
+
+            resourceManager.getSound("bleep2").start()
         }
     }
 

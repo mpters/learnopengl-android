@@ -1,6 +1,7 @@
 package net.pters.learnopengl.android.scenes.inpractice.breakout
 
 import android.content.Context
+import android.media.MediaPlayer
 import androidx.annotation.RawRes
 import net.pters.learnopengl.android.tools.Program
 import net.pters.learnopengl.android.tools.Texture
@@ -11,7 +12,15 @@ class ResourceManager(private val contextProvider: ContextProvider) {
 
     private val programs = mutableMapOf<String, Program>()
 
+    val sounds = mutableMapOf<String, MediaPlayer>()
+
     private val textures = mutableMapOf<String, Texture>()
+
+    fun getSound(name: String) = sounds.getValue(name)
+
+    fun stopSounds() = sounds.values.forEach { mediaPlayer ->
+        mediaPlayer.stop()
+    }
 
     fun getTexture(name: String) = textures.getValue(name)
 
@@ -23,6 +32,12 @@ class ResourceManager(private val contextProvider: ContextProvider) {
         )
         programs[name] = program
         return program
+    }
+
+    fun loadSound(name: String, @RawRes soundId: Int): MediaPlayer {
+        return MediaPlayer.create(contextProvider.getContext(), soundId).also {
+            sounds[name] = it
+        }
     }
 
     fun loadTexture(name: String, @RawRes textureId: Int): Texture {

@@ -12,6 +12,8 @@ abstract class Scene {
 
     open fun getInputTracker(): InputTracker? = null
 
+    open fun stop() = Unit
+
     fun postInit() {
         timer.tick()
     }
