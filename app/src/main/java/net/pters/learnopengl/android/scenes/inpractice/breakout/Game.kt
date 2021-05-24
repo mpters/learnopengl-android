@@ -4,6 +4,7 @@ import com.curiouscreature.kotlin.math.*
 import net.pters.learnopengl.android.R
 import net.pters.learnopengl.android.tools.InputTracker
 import kotlin.math.absoluteValue
+import kotlin.math.max
 import kotlin.random.Random
 
 
@@ -22,11 +23,15 @@ class Game(
 
     private var currentLevel = 0
 
-    private var state = State.ACTIVE
+    private var lives = 3
+
+    private var state = State.MENU
 
     private var shakeTime = 0.0f
 
     private lateinit var spriteRenderer: SpriteRenderer
+
+    private lateinit var textRenderer: TextRenderer
 
     private lateinit var particleGenerator: ParticleGenerator
 
@@ -35,6 +40,12 @@ class Game(
     private lateinit var player: GameObject
 
     private lateinit var ball: Ball
+
+    private lateinit var startButton: TextButton
+
+    private lateinit var nextLevelButton: TextButton
+
+    private lateinit var retryButton: TextButton
 
     fun init() {
         val spriteProgram = resourceManager.loadProgram(
@@ -46,6 +57,7 @@ class Game(
 
         resourceManager.loadTexture("background", R.raw.texture_background)
         resourceManager.loadTexture("face", R.raw.texture_awesomeface)
+        resourceManager.loadTexture("font", R.raw.texture_font_arial)
         resourceManager.loadTexture("paddle", R.raw.texture_paddle)
         resourceManager.loadTexture("block", R.raw.texture_block)
         resourceManager.loadTexture("block_solid", R.raw.texture_block_solid)
@@ -61,6 +73,13 @@ class Game(
         resourceManager.loadSound("breakout", R.raw.audio_breakout)
         resourceManager.loadSound("powerup", R.raw.audio_powerup)
         resourceManager.loadSound("solid", R.raw.audio_solid)
+
+        val textProgram = resourceManager.loadProgram(
+            "text",
+            R.raw.inpractice_scene1_text_rendering_vert,
+            R.raw.inpractice_scene1_text_rendering_frag
+        )
+        textRenderer = TextRenderer(textProgram, resourceManager.getTexture("font"))
 
         val particleProgram = resourceManager.loadProgram(
             "particle",
@@ -110,11 +129,41 @@ class Game(
             texture = resourceManager.getTexture("face")
         )
 
+        startButton = TextButton.centered(
+            textRenderer,
+            "Click here to start",
+            height / 2.0f,
+            3.0f,
+            Float3(1.0f),
+            Float3(0.7f, 1.0f, 0.7f),
+            width
+        )
+        nextLevelButton = TextButton.centered(
+            textRenderer,
+            "Select next level",
+            height / 2.0f + max(100.0f, height / 12.0f),
+            2.5f,
+            Float3(1.0f),
+            Float3(0.7f, 1.0f, 0.7f),
+            width
+        )
+        retryButton = TextButton.centered(
+            textRenderer,
+            "Click here to retry",
+            height / 2.0f,
+            3.0f,
+            Float3(1.0f),
+            Float3(0.7f, 1.0f, 0.7f),
+            width
+        )
+
         val projection = ortho(0.0f, width.toFloat(), height.toFloat(), 0.0f, -1.0f, 1.0f)
         spriteProgram.use()
         spriteProgram.setMat4("projection", projection)
         particleProgram.use()
         particleProgram.setMat4("projection", projection)
+        textProgram.use()
+        textProgram.setMat4("projection", projection)
 
         val backgroundMusic = resourceManager.getSound("breakout")
         backgroundMusic.isLooping = true
@@ -154,6 +203,25 @@ class Game(
                     }
                 }
             }
+        } else if (state == State.MENU) {
+            startButton.processInput(inputTracker)
+            nextLevelButton.processInput(inputTracker)
+
+            if (startButton.wasPressed) {
+                state = State.ACTIVE
+            } else if (nextLevelButton.wasPressed) {
+                if (currentLevel == 3) {
+                    currentLevel = 0
+                } else {
+                    currentLevel++
+                }
+            }
+        } else if (state == State.WIN) {
+            retryButton.processInput(inputTracker)
+            if (retryButton.wasPressed) {
+                state = State.MENU
+                postProcessor.chaos = false
+            }
         }
     }
 
@@ -172,8 +240,21 @@ class Game(
         }
 
         if (ball.position.y >= height) { // Did ball reach bottom edge?
+            lives--
+            if (lives == 0) {
+                resetLevel()
+                state = State.MENU
+
+            }
+            resetPlayer()
+        }
+
+        // check win condition
+        if (state == State.ACTIVE && levels[currentLevel].isCompleted()) {
             resetLevel()
             resetPlayer()
+            postProcessor.chaos = true
+            state = State.WIN
         }
     }
 
@@ -182,30 +263,44 @@ class Game(
     }
 
     fun render(time: Float) {
-        if (state == State.ACTIVE) {
-            postProcessor.beginRender()
+        postProcessor.beginRender()
 
-            spriteRenderer.draw(
-                resourceManager.getTexture("background"),
-                Float2(0.0f),
-                Float2(width.toFloat(), height.toFloat())
-            )
-            levels[currentLevel].draw(spriteRenderer)
+        spriteRenderer.draw(
+            resourceManager.getTexture("background"),
+            Float2(0.0f),
+            Float2(width.toFloat(), height.toFloat())
+        )
+        levels[currentLevel].draw(spriteRenderer)
 
-            player.draw(spriteRenderer)
+        player.draw(spriteRenderer)
 
-            // draw PowerUps
-            powerUps.forEach { powerUp ->
-                if (powerUp.destroyed.not()) {
-                    powerUp.draw(spriteRenderer)
-                }
+        // Draw PowerUps
+        powerUps.forEach { powerUp ->
+            if (powerUp.destroyed.not()) {
+                powerUp.draw(spriteRenderer)
             }
+        }
 
-            particleGenerator.draw()
-            ball.draw(spriteRenderer)
+        particleGenerator.draw()
+        ball.draw(spriteRenderer)
 
-            postProcessor.endRender()
-            postProcessor.render(time)
+        postProcessor.endRender()
+        postProcessor.render(time)
+
+        textRenderer.render("Lives: $lives", Float2(15.0f, 10.0f), 2.0f, Float3(1.0f))
+
+        if (state == State.MENU) {
+            startButton.render()
+            nextLevelButton.render()
+        } else if (state == State.WIN) {
+            val youWonDimens = textRenderer.measure("You WON!!!", 4.0f)
+            textRenderer.render(
+                "You WON!!!",
+                Float2(width / 2.0f - youWonDimens.x / 2.0f, height / 4.0f),
+                4.0f,
+                Float3(1.0f)
+            )
+            retryButton.render()
         }
     }
 
@@ -293,7 +388,10 @@ class Game(
     }
 
     private fun resetLevel() {
-        levels[currentLevel].load(width, height / 2)
+        levels.forEach {
+            it.load(width, height / 2)
+        }
+        lives = 3
     }
 
     private fun resetPlayer() {
@@ -510,7 +608,7 @@ class Game(
         }
     }
 
-    enum class State { ACTIVE, /*MENU, WIN*/ }
+    enum class State { ACTIVE, MENU, WIN }
 
     private enum class Direction {
         UP, RIGHT, DOWN, LEFT
