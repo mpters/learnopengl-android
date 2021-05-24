@@ -9,12 +9,17 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.curiouscreature.kotlin.math.Float2
 import net.pters.learnopengl.android.LearnOpenGL
+import net.pters.learnopengl.android.scenes.inpractice.breakout.GameScene
+import net.pters.learnopengl.android.tools.InputTracker
 import net.pters.learnopengl.android.tools.Scene
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
 class SceneActivity : AppCompatActivity() {
+
+    private var glView: GLSurfaceView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,16 +30,37 @@ class SceneActivity : AppCompatActivity() {
 
         title = chapter.title
 
-        val glView = object : GLSurfaceView(this) {
+        glView = object : GLSurfaceView(this) {
+
+            val scene: Scene = chapter.createScene(context)
+
             init {
-                val scene = chapter.createScene(context)
                 setEGLContextClientVersion(3)
                 setOnTouchListener(TouchListener(context, scene))
                 setRenderer(GLRenderer(scene))
             }
-        }
 
+            override fun onPause() {
+                scene.stop()
+                super.onPause()
+            }
+        }
         setContentView(glView)
+    }
+
+    override fun onDestroy() {
+        glView = null
+        super.onDestroy()
+    }
+
+    override fun onPause() {
+        glView?.onPause()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        glView?.onResume()
     }
 
     private class GLRenderer(private val scene: Scene) : GLSurfaceView.Renderer {
@@ -47,6 +73,9 @@ class SceneActivity : AppCompatActivity() {
         }
 
         override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
+            if ((scene as? GameScene)?.isInitialized == true) {
+                scene.stop()
+            }
             scene.init(width, height)
             scene.postInit()
         }
@@ -83,15 +112,24 @@ class SceneActivity : AppCompatActivity() {
             return when (event?.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     scene.getCamera()?.startLooking(event.x, event.y)
+                    scene.getInputTracker()?.lastAction = InputTracker.Action.DOWN
+                    scene.getInputTracker()?.position = Float2(event.x, event.y)
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     if (!isScaling) {
                         scene.getCamera()?.lookAround(event.x, event.y)
                     }
+                    scene.getInputTracker()?.position = Float2(event.x, event.y)
                     true
                 }
-                MotionEvent.ACTION_POINTER_DOWN, MotionEvent.ACTION_UP -> {
+                MotionEvent.ACTION_UP -> {
+                    scene.getCamera()?.halt()
+                    scene.getInputTracker()?.lastAction = InputTracker.Action.UP
+                    scene.getInputTracker()?.position = Float2(event.x, event.y)
+                    true
+                }
+                MotionEvent.ACTION_POINTER_DOWN -> {
                     scene.getCamera()?.halt()
                     true
                 }
