@@ -44,4 +44,4 @@ An attempt to implement all tutorials from [LearnOpenGL.com](https://learnopengl
     - [ ] IBL (*Looking for a way to load .hdr image with Android SDK*)
 - [x] In Practice
     - [x] Text rendering (*Using a classic bitmap font since FreeType is only feasable with the NDK*)
-    - [ ] 2D Game
+    - [x] 2D Game
