@@ -38,8 +38,4 @@ class Ball(
 
         return position
     }
-
-    fun reset(position: Float2, velocity: Float2) {
-
-    }
 }

@@ -12,7 +12,7 @@ class ResourceManager(private val contextProvider: ContextProvider) {
 
     private val programs = mutableMapOf<String, Program>()
 
-    val sounds = mutableMapOf<String, MediaPlayer>()
+    private val sounds = mutableMapOf<String, MediaPlayer>()
 
     private val textures = mutableMapOf<String, Texture>()
 
